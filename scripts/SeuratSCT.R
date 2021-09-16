@@ -1,10 +1,10 @@
 #!/usr/bin/env Rscript
-#Run with R CMD BATCH Seurat_1sample.R instead of Rscript to redirect std out to the log file
+#Run with R CMD BATCH SeuratSCT.R instead of Rscript to redirect std out to the log file
 args = commandArgs(trailingOnly=TRUE)
 
 # Test if there is one argument: if not, return an error
 if (length(args) != 10) {
-  stop("Other arguments must be supplied { path/to/info.csv, path/to/results, id, n. min genes per-cell, max genes per-cell, % MT, n. of PCs, cluster resolution (0.4 - 1.2), species (Human|Mouse), tissue (Blood|Brain) }", call.=FALSE)
+  stop("Other args must be supplied { path/to/info.csv, path/to/results, id, n. min genes per-cell, max genes per-cell, % MT, n. of PCs, cluster resolution (0.4 - 1.2), species (Human|Mouse), tissue (Blood|Brain) }", call.=FALSE)
 } else if (length(args) == 10) {
   input = args[1]
   path = args[2]
