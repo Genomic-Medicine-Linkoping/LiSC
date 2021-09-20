@@ -1,7 +1,67 @@
 # LiSC
-scRNA-seq
+LiSC is a [Seurat (v4.0.4)](https://satijalab.org/seurat/ 'Seurat main page') wrapper for scRNA-seq data analysis. LiSC supports integrated or non-integrated data analysis with or without SCTransform (please refer to the Seurat documentation). LiSC implements [scCATCH (v2.1)](https://github.com/ZJUFanLab/scCATCH 'scCATCH') to perform cell type prediction.
 
-1.1 For Human tissue, tissue types are listed as follows:
+<br>
+
+## Input files
+LiSC takes in input a CellRanger folder or a list of paths and you can pass them through a .csv file with some other information such as the Sample name and Condition. You don't need to assign any column name to this file. Please find templates to run both integrated (info_integrate.csv) and non-integrated analysis (info_single.csv) [here](https://github.com/pyrevo/LiSC/tree/main/info 'csv templates'). Basically, supposing that you have to run a Seurat analysis integrating data from different samples and conditions, you have to compile a file like this:
+
+```bash=
+id1,cond1,path/to/cellranger/id1
+id2,cond1,path/to/cellranger/id2
+id3,cond2,path/to/cellranger/id3
+...
+```
+
+<br>
+
+## Run LiSC
+You require just one line to run the single basic analysis or you can provide several samples but then just the first line will be used for the analysis.
+
+This is how the help screen looks like. Required arguments are the algorithms (you can choose between single or integrated analysis), id of the project, the .csv file with the information described above and the path in which you want to store the results. Then you can tune some parameters and decide if you want to apply SCTransform (disabled by default):
+
+```bash
+LiSC is a Seurat (v4.0.4) wrapper and uses scCATCH (v2.1) for cell-type annotation.
+
+Usage:
+  LiSC.R (single | integrate) <id> <csv> <out> [--minGPC=<n>, --maxGPC=<n>, -npc=<n>, --res=<n>, --species=<c>, --tissue=<c>, --SCT]
+  LiSC.R (-h | --help)
+  LiSC.R --version
+
+Options:
+  -h --help         Show this screen.
+  --version         Show version.
+  --SCT             Use SCTtransform algorithm for normalization.
+  --minGPC=<n>      Min number of genes per cell [default: 200].
+  --maxGPC=<n>      Max number of genes per cell [default: 2500].
+  --percMT=<n>      Max percentage of MT [default: 5].
+  -n --npc=<n>      Max number of Principal Components [default: 30].
+  -r --res=<n>      Cluster resolution [default: 0.5].
+  -s --species=<c>  Species for scCATCH [default: Human].
+  -t --tissue=<c>   Tissue for scCATCH [default: Blood].
+```
+
+Here are some examples of commands to run different analyses:
+
+```bash=
+# Run single analysis without SCT
+Rscript LiSC.R single testSingle_vst info_single.csv ./
+# Run single analysis with SCT
+Rscript LiSC.R single testSingle_sct info_single.csv ./ --SCT
+# Run integrated analysis without SCT
+Rscript LiSC.R integrate testIntegrate_vst info_integrate.csv ./
+# Run integrated analysis with SCT
+Rscript LiSC.R integrate testIntegrate_sct info_integrate.csv ./ --SCT
+```
+
+<br>
+
+## scCATCH
+[scCATCH](https://github.com/ZJUFanLab/scCATCH 'scCATCH') allows automatic annotation on cell types of clusters found in Seurat but you need to provide a species name for the database (Human and Mouse are currently supported) and the tissue. You can pass this information through the parameters `--species` (Human by default) and `--tissue` (Blood by default). You can find the complete list of the supported tissues below:
+
+
+```bash=
+#1.1 For Human tissue, tissue types are listed as follows:
 
 Adipose tissue-related: Abdominal adipose tissue; Adipose tissue; Brown adipose tissue; Fat pad; Subcutaneous adipose tissue; Visceral adipose tissue; White adipose tissue.
 
@@ -67,9 +127,9 @@ Vessel-related: Adventitia; Antecubital vein; Artery; Blood vessel; Umbilical ve
 
 Others: Ascites; Epithelium; Ligament; Pluripotent stem cell; Thymus; Whartons jelly.
 
-———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-1.2 For Human tissue about cancer, cancer types and the corresponding tissue types are listed as follows:
+#1.2 For Human tissue about cancer, cancer types and the corresponding tissue types are listed as follows:
 
 Acute Myelogenous Leukemia: Blood.
 
@@ -137,7 +197,7 @@ Intestinal Cancer: Gastrointestinal tract.
 
 Intracranial Aneurysm: Brain.
 
-Kaposi's Sarcoma: Lymph node.
+Kaposi s Sarcoma: Lymph node.
 
 Larynx Cancer: Larynx.
 
@@ -219,9 +279,9 @@ Uterine Leiomyoma: Uterus.
 
 Vascular Tumour: Lymph node.
 
-———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-2.1 For Mouse tissue, tissue types are listed as follows:
+#2.1 For Mouse tissue, tissue types are listed as follows:
 
 Adipose tissue-related: Adipose tissue; White adipose tissue.
 
@@ -289,9 +349,9 @@ Vessel-related: Aorta; Artery; Blood vessel; Carotid artery.
 
 Others: Basilar membrane; Epithelium; Peritoneal cavity; Thymus.
 
-———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-2.2 For Mouse tissue about cancer, cancer types and the corresponding tissue types are listed as follows:
+#2.2 For Mouse tissue about cancer, cancer types and the corresponding tissue types are listed as follows:
 
 Breast Cancer: Lymph node; Breast; Lung.
 
@@ -385,9 +445,9 @@ Vessel-related: Adventitia; Antecubital vein; Artery; Blood vessel; Umbilical ve
 
 Others: Ascites; Epithelium; Ligament; Pluripotent stem cell; Thymus; Whartons jelly.
 
-———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-1.2 For Human tissue about cancer, cancer types and the corresponding tissue types are listed as follows:
+#1.2 For Human tissue about cancer, cancer types and the corresponding tissue types are listed as follows:
 
 Acute Myelogenous Leukemia: Blood.
 
@@ -455,7 +515,7 @@ Intestinal Cancer: Gastrointestinal tract.
 
 Intracranial Aneurysm: Brain.
 
-Kaposi's Sarcoma: Lymph node.
+Kaposi s Sarcoma: Lymph node.
 
 Larynx Cancer: Larynx.
 
@@ -537,9 +597,9 @@ Uterine Leiomyoma: Uterus.
 
 Vascular Tumour: Lymph node.
 
-———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-2.1 For Mouse tissue, tissue types are listed as follows:
+#2.1 For Mouse tissue, tissue types are listed as follows:
 
 Adipose tissue-related: Adipose tissue; White adipose tissue.
 
@@ -607,9 +667,9 @@ Vessel-related: Aorta; Artery; Blood vessel; Carotid artery.
 
 Others: Basilar membrane; Epithelium; Peritoneal cavity; Thymus.
 
-———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-2.2 For Mouse tissue about cancer, cancer types and the corresponding tissue types are listed as follows:
+#2.2 For Mouse tissue about cancer, cancer types and the corresponding tissue types are listed as follows:
 
 Breast Cancer: Lymph node; Breast; Lung.
 
@@ -638,5 +698,4 @@ Prostate Cancer: Prostate.
 Renal Cell Carcinoma: Kidney.
 
 Supratentorial Primitive Neuroectodermal Tumor: Brain. 
-
-https://github.com/ZJUFanLab/scCATCH
+```
