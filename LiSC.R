@@ -35,7 +35,7 @@ suppressPackageStartupMessages({
 })
 
 args <- docopt(doc, version = 'LiSC 0.1.0\n')
-print(args)
+#print(args)
 source("fun.R")
 source("algos.R")
 
@@ -48,17 +48,7 @@ test_output(out)
 write("Starting Seurat 10X Object...", stdout())
 # Make Seurat object for single or integrated data analysis
 if (args$single == TRUE) {
-    data <- SeuratSingle(info[1,], args$id)
-    print(data)
-    data <- SeuratQC(data, as.numeric(args$minGPC), as.numeric(args$maxGPC), as.numeric(args$percMT), 4, out)
-    print(data)
-    data <- SingleNorm(data)
-    print(data)
+  SeuratSingleAlgo(info, args, out)
 } else if (args$integrate == TRUE) {
-    SeuratIntegrateAlgo(SeuratObj, info, args, out)
-    #tail(data@meta.data)
-    #data
-    #table(data$Project)
-    #table(data$Sample)
-    #table(data$Condition)   
+    SeuratIntegrateAlgo(info, args, out)   
 }

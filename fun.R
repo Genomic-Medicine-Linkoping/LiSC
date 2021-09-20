@@ -36,8 +36,8 @@ SeuratObj <- function(sample, condition, path) {
     return(sobj)
 }
 
-SeuratIntegrate <- function(SeuratObj, info, id) {
-    v <- mapply(SeuratObj, info$sample, info$condition, info$path)
+SeuratIntegrate <- function(fun, info, id) {
+    v <- mapply(fun, info$sample, info$condition, info$path)
     data <- merge(v[[1]], v[2:length(v)], add.cell.ids=info$sample, project=id)
     v <- NULL
     data <- AddMetaData(data, metadata=id, col.name="Project")
@@ -55,7 +55,8 @@ SingleNorm <- function(data) {
     write("Normalizing data...\n", stdout())
     data <- NormalizeData(data, normalization.method="LogNormalize", scale.factor=10000)
     data <- FindVariableFeatures(data, selection.method="vst", nfeatures=2000)
-    return(data)
+    all.genes <- rownames(data)
+    data <- ScaleData(data, features=all.genes)
 }
 
 SeuratNorm <- function(data) {
@@ -173,6 +174,12 @@ PlotMarkers <- function(out, data, name, markers) {
     print(FeaturePlot(data, features = c(head(top1$gene, 12))))
     print(DoHeatmap(data, features = top10$gene) + NoLegend())
     print(DotPlot(data, features = rev(as.character(unique(top5$gene))), group.by = "seurat_clusters", assay = "RNA") + coord_flip())
+    invisible(dev.off())
+}
+
+PlotUMAP <- function(out, data, name) {
+    pdf(file=file.path(out, name), height=14.4, width=27.3)
+    print(DimPlot(data, label = TRUE, reduction="umap"))
     invisible(dev.off())
 }
 
