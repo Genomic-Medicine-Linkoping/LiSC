@@ -69,7 +69,7 @@ SeuratNorm <- function(data) {
 
 SeuratSCT <- function(data) {
     data.list <- SplitObject(data, split.by = "Condition")
-    data.list <- lapply(X = data.list, FUN = SCTransform)
+    data.list <- lapply(X = data.list, FUN = SCTransform, vars.to.regress = "percent.mt")
 }
 
 IntegrateNorm <- function(data.list) {
@@ -104,8 +104,7 @@ SeuratTop <- function(data.markers, n) {
 
 SeuratAllMarkers  <- function(data) {
     write("\nFinding differentially expressed features...", stdout())
-    #DefaultAssay(combined) <- "RNA"
-    data.markers <- FindAllMarkers(data, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, assay="RNA")
+    data.markers <- FindAllMarkers(data, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
     top1 <- SeuratTop(data.markers, 1)
     top5 <- SeuratTop(data.markers, 5)
     top10 <- SeuratTop(data.markers, 10)
@@ -171,9 +170,9 @@ PlotMarkers <- function(out, data, name, markers) {
     top5 <- markers[[3]]
     top10 <- markers[[4]]
     pdf(file=file.path(out, name), height=14.4, width=27.3)
-    print(FeaturePlot(data, features = c(head(top1$gene, 12))))
+    print(FeaturePlot(data, features = c(top1$gene)))
     print(DoHeatmap(data, features = top10$gene) + NoLegend())
-    print(DotPlot(data, features = rev(as.character(unique(top5$gene))), group.by = "seurat_clusters", assay = "RNA") + coord_flip())
+    print(DotPlot(data, features = rev(as.character(unique(top5$gene))), group.by = "seurat_clusters") + coord_flip())
     invisible(dev.off())
 }
 
@@ -191,37 +190,13 @@ PlotIntegratedUMAP <- function(out, data, name, ncol) {
     invisible(dev.off())
 }
 
-SeuratPlot <- function(out, data, top1, top10) {
+PlotVariableFeatures <- function(out, data, top1, top10) {
     #DefaultAssay(data) <- "RNA"
-    #top10 <- head(VariableFeatures(data), 10)
-    #vf1 <- VariableFeaturePlot(data)
-    #vf2 <- LabelPoints(plot=vf1, points=top10, repel=TRUE, xnudge = 0, ynudge = 0)
-    #pdf(file=file.path(out, "2_VariableFeatures.pdf"), height=14.4, width=25.6)
-    #vf1
-    #suppressWarnings(print(vf2))
-    #invisible(dev.off())
-
-    #DefaultAssay(combined) <- "data"
-    pdf(file=file.path(out, "2_PCA.pdf"), height=14.4, width=27.3)
-    #VizDimLoadings(data, dims = 1:2, reduction="pca")
-    print(VizDimLoadings(data, dims = 1:15, reduction = "pca") & theme(axis.text=element_text(size=5), axis.title=element_text(size=8,face="bold")))
-    print(DimPlot(data, reduction="pca", group.by = "Condition"))
-    print(DimHeatmap(data, dims=1, cells=500, balanced=TRUE))
-    print(DimHeatmap(data, dims = 1:15, cells=500, balanced=TRUE))
-    print(ElbowPlot(data))
-    #JackStrawPlot(data, dims = 1:15)
-    invisible(dev.off())
-
-    pdf(file=file.path(out, "4_Biomarkers.pdf"), height=14.4, width=27.3)
-    print(FeaturePlot(data, features = c(head(top1$gene, 12))))
-    print(DoHeatmap(data, features = top10$gene) + NoLegend())
-    invisible(dev.off())
-}
-
-SeuratPlotty <- function(out, list) {
-    pdf(file=file.path(out, "1_QC.pdf"), height=14.4, width=25.6, onefile=TRUE)
-    #do.call(list[[2]])
-    plot.new()
-    list
+    top10 <- head(VariableFeatures(data), 10)
+    vf1 <- VariableFeaturePlot(data)
+    vf2 <- LabelPoints(plot=vf1, points=top10, repel=TRUE, xnudge = 0, ynudge = 0)
+    pdf(file=file.path(out, "2_VariableFeatures.pdf"), height=14.4, width=25.6)
+    vf1
+    suppressWarnings(print(vf2))
     invisible(dev.off())
 }

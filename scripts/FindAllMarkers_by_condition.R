@@ -23,3 +23,7 @@ prova <- FindMarkers(mySeurat, ident.1 = "Angiogenic T Cell_T1", ident.2="CD14+ 
 
 #savehistory("history.txt")
 
+#tail(data@meta.data)
+#table(data@meta.data$Project)
+#table(data@meta.data$Sample)
+#table(data@meta.data$Condition)

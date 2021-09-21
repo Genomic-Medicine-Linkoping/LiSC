@@ -11,12 +11,12 @@ SeuratSingleAlgo <- function(info, args, out) {
         data <- SingleNorm(data)
     } else {
         write("\nSCT is enabled!\n", stdout())
-        data <- SCTransform(data, vars.to.regress = "percent.mt", verbose = FALSE)
+        data <- SCTransform(data, vars.to.regress = "percent.mt", verbose = TRUE)
     }
     data <- SeuratPCA(data, as.numeric(args$npc), as.numeric(args$res))
-    markers <- SeuratAllMarkers(data)
     PlotPCA(out, data, "3_PCA.pdf")
     PlotUMAP(out, data, "4_UMAP.pdf")
+    markers <- SeuratAllMarkers(data)
     PlotMarkers(out, data, "5_Markers.pdf", markers)
     anno <- SeuratAnno(markers[[1]], args$species, args$tissue)
     data <- convertSeurat(data, anno)
@@ -42,18 +42,23 @@ SeuratIntegrateAlgo <- function(info, args, out) {
         combined <- IntegrateSCT(data.list)
     }
     combined <- SeuratPCA(combined, as.numeric(args$npc), as.numeric(args$res))
-    markers <- SeuratAllMarkers(combined)
     PlotPCA(out, combined, "3_PCA.pdf")
     PlotIntegratedUMAP(out, combined, "4_UMAP.pdf", 4)
-    PlotMarkers(out, combined, "5_Markers.pdf", markers)
-    anno<- SeuratAnno(markers[[1]], args$species, args$tissue)
+    if (args$SCT == FALSE) {
+        DefaultAssay(combined) <- "RNA"
+        all.genes <- rownames(combined)
+        combined <- ScaleData(combined, features=all.genes, verbose = TRUE)
+        markers <- SeuratAllMarkers(combined)
+        PlotMarkers(out, combined, "5_Markers.pdf", markers)
+    } else {
+        DefaultAssay(combined) <- "SCT"
+        markers <- SeuratAllMarkers(combined)
+        PlotMarkers(out, combined, "5_Markers.pdf", markers)
+    }    
+    DefaultAssay(combined) <- "integrated"
+    anno <- SeuratAnno(markers[[1]], args$species, args$tissue)
     combined <- convertSeurat(combined, anno)
     PlotIntegratedUMAP(out, combined, "6_annoUMAP.pdf", 4)
     saveRDS(combined, file.path(out, paste(args$id, "rds", sep=".")))
     print(combined)
 }
-
-#tail(data@meta.data)
-#table(data@meta.data$Project)
-#table(data@meta.data$Sample)
-#table(data@meta.data$Condition)
