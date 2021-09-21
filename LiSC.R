@@ -10,7 +10,7 @@ Usage:
 Options:
   -h --help         Show this screen.
   --version         Show version.
-  --SCT             Use SCTtransform algorithm for normalization.
+  --SCT             Use SCTransform algorithm for normalization.
   --minGPC=<n>      Min number of genes per cell [default: 200].
   --maxGPC=<n>      Max number of genes per cell [default: 2500].
   --percMT=<n>      Max percentage of MT [default: 5].
