@@ -4,7 +4,7 @@ LiSC is a [Seurat (v4.0.4)](https://satijalab.org/seurat/ 'Seurat main page') wr
 <br>
 
 ## Input files
-LiSC takes in input a CellRanger folder or a list of paths and you can pass them through a .csv file with some other information such as the Sample name and Condition. You don't need to assign any column name to this file. Please find templates to run both integrated (info_integrate.csv) and non-integrated analysis (info_single.csv) [here](https://github.com/pyrevo/LiSC/tree/main/info 'csv templates'). Basically, supposing that you have to run a Seurat analysis integrating data from different samples and conditions, you have to compile a file like this:
+LiSC takes in input a [CellRanger (v6.1.1)](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/installation 'Cell Ranger Installation') folder or a list of paths and you can pass them through a .csv file with some other information such as the Sample name and Condition. You don't need to assign any column name to this file. Please find templates to run both integrated (info_integrate.csv) and non-integrated analysis (info_single.csv) [here](https://github.com/pyrevo/LiSC/tree/main/info 'csv templates'). Basically, supposing that you have to run a Seurat analysis integrating data from different samples and conditions, you have to compile a file like this:
 
 ```bash=
 id1,cond1,path/to/cellranger/id1
@@ -15,10 +15,32 @@ id3,cond2,path/to/cellranger/id3
 
 <br>
 
+## Output Files
+LiSC gives 6 .pdf files and 1 R object in output. The .pdf files show the results of the different steps of the analysis while the R object is meant to load the entire analysis in the R console (or in [RStudio](https://www.rstudio.com/)) Here is a brief description of the output files content:
+
+| Output         | Description |
+| -------------- | ------------------------------------------------------------------ |
+| 1_preQC.pdf    | quality control stats before filtering                             |
+| 2_postQC.pdf   | quality control after filtering                                    |
+| 3_PCA.pdf      | results of the linear dimensional reduction                        |
+| 4_UMAP.pdf     | results of the non-linear dimensional reduction                    |
+| 5_Markers.pdf  | markers that define different clusters via differential expression |
+| 6_annoUMAP.pdf | results of the cell type annotation from scCATCH                   |
+| id.rds         | R object that can be loaded in Seurat for further analyses         |
+
+Actually, LiSC performs the search for markers of different cell populations with the function *FindAllMarkers()* in Seurat that performs an All vs All comparison. However, it does not take into account the different conditions that you might have. For this reason, you can load the R object (which inherits the project id) and perform further analyses. After having imported the Seurat library, you can load this object like this:
+
+```r
+library(Seurat)
+mySeuratObj <- readRDS("path/to/results/id.rds")
+```
+
+<br>
+
 ## Run LiSC
 You require just one line to run the single basic analysis or you can provide several samples but then just the first line will be used for the analysis.
 
-This is how the help screen looks like. Required arguments are the algorithms (you can choose between single or integrated analysis), id of the project, the .csv file with the information described above and the path in which you want to store the results. Then you can tune some parameters and decide if you want to apply SCTransform (disabled by default):
+This is how the help screen looks like. Required arguments are the algorithms (you can choose between single or integrated analysis), id of the project, the .csv file with the information described above and the path in which you want to store the results. A folder with the id of the project will be created at this path storing all the outputs generated within the analysis. In addition, you can tune some parameters to drive the filtering and clustering steps and chose to apply SCTransform or not (disabled by default):
 
 ```bash
 LiSC is a Seurat (v4.0.4) wrapper and uses scCATCH (v2.1) for cell-type annotation.
@@ -31,7 +53,7 @@ Usage:
 Options:
   -h --help         Show this screen.
   --version         Show version.
-  --SCT             Use SCTtransform algorithm for normalization.
+  --SCT             Use SCTransform algorithm for normalization.
   --minGPC=<n>      Min number of genes per cell [default: 200].
   --maxGPC=<n>      Max number of genes per cell [default: 2500].
   --percMT=<n>      Max percentage of MT [default: 5].
@@ -41,7 +63,7 @@ Options:
   -t --tissue=<c>   Tissue for scCATCH [default: Blood].
 ```
 
-Here are some examples of commands to run different analyses:
+Here are some examples of commands to run LiSC with the different algorithms provided:
 
 ```bash=
 # Run single analysis without SCT
